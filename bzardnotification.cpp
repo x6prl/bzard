@@ -15,20 +15,20 @@
  * along with bzard.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "bzardnotification.h"
 
-#include <memory>
-
-#include <iqfullscreendetector.h>
-
-class X11FullscreenDetector final : public IQFullscreenDetector
+IQNotification::operator QString() const
 {
-      public:
-	X11FullscreenDetector();
+	QString ret;
+	ret += "#" + QString::number(id);
+	if (replaces_id)
+		ret += "→" + QString::number(replaces_id);
+	ret += '|' + application;
+	ret += '|' + body;
+	ret += '|' + title;
+	ret += '|' + icon_url;
+	ret += "|t" + QString::number(expire_timeout);
+	return ret;
+}
 
-	bool fullscreenWindowsOnCurrentDesktop() const final;
-	bool fullscreenWindows() const final;
-
-      private:
-	std::unique_ptr<IQFullscreenDetector> detectorPrivate;
-};
+IQNotificationModifier::~IQNotificationModifier() {}

@@ -17,18 +17,25 @@
 
 #pragma once
 
-#include <memory>
+#include <QObject>
+#include <QSystemTrayIcon>
+#include <QUrl>
 
-#include <iqfullscreendetector.h>
-
-class X11FullscreenDetector final : public IQFullscreenDetector
+class BzardTrayIcon : public QSystemTrayIcon
 {
+	Q_OBJECT
+	Q_PROPERTY(
+	    QUrl iconUrl READ iconUrl WRITE setIconUrl NOTIFY iconUrlChanged)
       public:
-	X11FullscreenDetector();
+	explicit BzardTrayIcon(QObject *parent = nullptr);
 
-	bool fullscreenWindowsOnCurrentDesktop() const final;
-	bool fullscreenWindows() const final;
+	QUrl iconUrl() const;
+	void setIconUrl(const QUrl &iconUrl);
+
+      signals:
+	void iconUrlChanged();
+	void leftClick();
 
       private:
-	std::unique_ptr<IQFullscreenDetector> detectorPrivate;
+	QUrl iconUrl_;
 };

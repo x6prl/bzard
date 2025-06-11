@@ -19,16 +19,33 @@
 
 #include <memory>
 
-#include <iqfullscreendetector.h>
+#include <QObject>
+#include <QTimer>
 
-class X11FullscreenDetector final : public IQFullscreenDetector
+class BzardExpirationController : public QObject
 {
-      public:
-	X11FullscreenDetector();
+	Q_OBJECT
 
-	bool fullscreenWindowsOnCurrentDesktop() const final;
-	bool fullscreenWindows() const final;
+	Q_PROPERTY(bool expiration READ expiration WRITE setExpiration NOTIFY
+		       expirationChanged)
+	Q_PROPERTY(
+	    int timeout READ timeout WRITE setTimeout NOTIFY timeoutChanged)
+      public:
+	using QObject::QObject;
+
+	bool expiration() const;
+	void setExpiration(bool expiration);
+
+	int timeout() const;
+	void setTimeout(int timeout);
+
+      signals:
+	void expired();
+	void expirationChanged();
+	void timeoutChanged();
+
+      public slots:
 
       private:
-	std::unique_ptr<IQFullscreenDetector> detectorPrivate;
+	std::unique_ptr<QTimer> t;
 };

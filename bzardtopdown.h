@@ -17,18 +17,37 @@
 
 #pragma once
 
-#include <memory>
+#include <map>
 
-#include <iqfullscreendetector.h>
+#include <QObject>
+#include <QPoint>
 
-class X11FullscreenDetector final : public IQFullscreenDetector
+#include <bzarddisposition.h>
+
+class BzardTopDown final : public IQDisposition
 {
-      public:
-	X11FullscreenDetector();
+	Q_OBJECT
 
-	bool fullscreenWindowsOnCurrentDesktop() const final;
-	bool fullscreenWindows() const final;
+      public:
+	using IQDisposition::optional;
+
+	explicit BzardTopDown(QObject *parent = nullptr);
+
+	optional<QPoint> poses(IQNotification::id_t id, QSize size) final;
+
+	QPoint externalWindowPos() const final;
+
+	void setExtraWindowSize(const QSize &value) final;
+
+	void setSpacing(int value) final;
+
+      public slots:
+	void remove(IQNotification::id_t id) final;
+	void removeAll() final;
 
       private:
-	std::unique_ptr<IQFullscreenDetector> detectorPrivate;
+	std::map<IQNotification::id_t, QRect> dispositions;
+
+	void recalculateAvailableScreenGeometry() final;
+	QRect availableGeometry() const;
 };

@@ -17,18 +17,26 @@
 
 #pragma once
 
-#include <memory>
+#include <QObject>
 
-#include <iqfullscreendetector.h>
+#include "bzardnotification.h"
 
-class X11FullscreenDetector final : public IQFullscreenDetector
+class IQNotificationReceiver : public QObject
 {
+	Q_OBJECT
+
       public:
-	X11FullscreenDetector();
+	using QObject::QObject;
+	virtual ~IQNotificationReceiver() = default;
 
-	bool fullscreenWindowsOnCurrentDesktop() const final;
-	bool fullscreenWindows() const final;
+      signals:
+	void notificationDroppedSignal(IQNotification::id_t id,
+				       IQNotification::ClosingReason reason);
+	void actionInvokedSignal(IQNotification::id_t id,
+				 const QString &action_key);
 
-      private:
-	std::unique_ptr<IQFullscreenDetector> detectorPrivate;
+      public slots:
+	virtual void
+	onCreateNotification(const IQNotification &notification) = 0;
+	virtual void onDropNotification(IQNotification::id_t id) = 0;
 };

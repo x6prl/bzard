@@ -1,19 +1,19 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>IQPopup.qml</file>
-        <file>IQNotificationContainer.qml</file>
-        <file>IQNotificationBar.qml</file>
         <file>img/close.png</file>
-        <file>IQButton.qml</file>
-        <file>IQFancyContainer.qml</file>
-        <file>IQNotification.qml</file>
         <file>img/warning.png</file>
-        <file>IQExpirationBar.qml</file>
-        <file>IQExtraNotifications.qml</file>
         <file>img/closeVisible.png</file>
         <file>img/closeAll.png</file>
-        <file>IQHistoryWindow.qml</file>
-        <file>IQHistoryNotification.qml</file>
+        <file>BzardHistoryWindow.qml</file>
+        <file>BzardHistoryNotification.qml</file>
+        <file>BzardNotificationBar.qml</file>
+        <file>BzardNotificationContainer.qml</file>
+        <file>BzardNotification.qml</file>
+        <file>BzardPopup.qml</file>
+        <file>BzardFancyContainer.qml</file>
+        <file>BzardExtraNotifications.qml</file>
+        <file>BzardExpirationBar.qml</file>
+        <file>BzardButton.qml</file>
     </qresource>
 </RCC>

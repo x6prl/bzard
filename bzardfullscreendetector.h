@@ -17,18 +17,10 @@
 
 #pragma once
 
-#include <memory>
+struct IQFullscreenDetector {
+	IQFullscreenDetector() = default;
+	virtual ~IQFullscreenDetector() = default;
 
-#include <iqfullscreendetector.h>
-
-class X11FullscreenDetector final : public IQFullscreenDetector
-{
-      public:
-	X11FullscreenDetector();
-
-	bool fullscreenWindowsOnCurrentDesktop() const final;
-	bool fullscreenWindows() const final;
-
-      private:
-	std::unique_ptr<IQFullscreenDetector> detectorPrivate;
+	virtual bool fullscreenWindowsOnCurrentDesktop() const = 0;
+	virtual bool fullscreenWindows() const = 0;
 };

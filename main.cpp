@@ -1,18 +1,18 @@
 /*
- *     This file is part of IQ Notifier.
+ *     This file is part of bzard.
  *
- * IQ Notifier is free software: you can redistribute it and/or modify
+ * bzard is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- * IQ Notifier is distributed in the hope that it will be useful,
+ * bzard is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with IQ Notifier.  If not, see <http://www.gnu.org/licenses/>.
+ * along with bzard.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <QApplication>
@@ -22,14 +22,14 @@
 
 #include "notificationsadaptor.h"
 
-#include "iqdbusservice.h"
-#include "iqexpirationcontroller.h"
-#include "iqhistory.h"
-#include "iqnotificationmodifiers.h"
-#include "iqnotifications.h"
-#include "iqthemes.h"
-#include "iqtopdown.h"
-#include "iqtrayicon.h"
+#include "bzarddbusservice.h"
+#include "bzardexpirationcontroller.h"
+#include "bzardhistory.h"
+#include "bzardnotificationmodifiers.h"
+#include "bzardnotifications.h"
+#include "bzardthemes.h"
+#include "bzardtopdown.h"
+#include "bzardtrayicon.h"
 
 #ifdef IQ_X11
 #include "X11-plugin/x11fullscreendetector.h"
@@ -38,21 +38,21 @@
 /*
  * Should be called first
  */
-static gsl::not_null<IQDBusService *> get_service();
-static gsl::not_null<IQHistory *> get_history();
+static BzardDBusService * get_service();
+static BzardHistory * get_history();
 static QDBusConnection
-connect_to_session_bus(gsl::not_null<IQDBusService *> service);
-static QObject *iqnotifications_provider(QQmlEngine *engine,
+connect_to_session_bus(BzardDBusService * service);
+static QObject *bzardnotifications_provider(QQmlEngine *engine,
 					 QJSEngine *scriptEngine);
-static QObject *iqthemes_provider(QQmlEngine *engine, QJSEngine *scriptEngine);
+static QObject *bzardthemes_provider(QQmlEngine *engine, QJSEngine *scriptEngine);
 
-gsl::not_null<IQDBusService *> get_service()
+BzardDBusService * get_service()
 {
-	using namespace IQNotificationModifiers; // NOLINT
+	using namespace BzardNotificationModifiers; // NOLINT
 
-	auto disposition = std::make_unique<IQTopDown>();
+	auto disposition = std::make_unique<BzardTopDown>();
 	auto dbus_service =
-	    (new IQDBusService)
+	    (new BzardDBusService)
 		->addModifier(make<IDGenerator>())
 		->addModifier(make<TitleToIcon>())
 		->addModifier(make<IconHandler>())
@@ -60,11 +60,11 @@ gsl::not_null<IQDBusService *> get_service()
 		->addModifier(make<DefaultTimeout>())
 		->addModifier(make<ReplaceMinusToDash>());
 
-	auto notifications = IQNotifications::get(std::move(disposition));
+	auto notifications = BzardNotifications::get(std::move(disposition));
 	if (notifications->isEnabled())
 		dbus_service->connectReceiver(notifications);
 	if (get_history()->isEnabled())
-		dbus_service->connectReceiver(get_history().get());
+        dbus_service->connectReceiver(get_history());
 
 	std::unique_ptr<IQFullscreenDetector> fullscreenDetector;
 #ifdef IQ_X11
@@ -74,41 +74,41 @@ gsl::not_null<IQDBusService *> get_service()
 	return dbus_service;
 }
 
-gsl::not_null<IQHistory *> get_history()
+BzardHistory * get_history()
 {
-	static IQHistory history;
-	return {&history};
+	static BzardHistory history;
+    return &history;
 }
 
-QObject *iqnotifications_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+QObject *bzardnotifications_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
 	Q_UNUSED(engine);
 	Q_UNUSED(scriptEngine);
-	return IQNotifications::get();
+	return BzardNotifications::get();
 }
 
-QObject *iqthemes_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+QObject *bzardthemes_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
 	Q_UNUSED(engine);
 	Q_UNUSED(scriptEngine);
-	static IQThemes theme;
+	static BzardThemes theme;
 	return &theme;
 }
 
-QObject *iqhistory_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+QObject *bzardhistory_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
 	Q_UNUSED(engine);
 	Q_UNUSED(scriptEngine);
-	return get_history().get();
+    return get_history();
 }
 
-QDBusConnection connect_to_session_bus(gsl::not_null<IQDBusService *> service)
+QDBusConnection connect_to_session_bus(BzardDBusService *service)
 {
 	auto connection = QDBusConnection::sessionBus();
 	if (!connection.registerService("org.freedesktop.Notifications")) {
 		throw std::runtime_error{"DBus Service already registered!"};
 	}
-	new NotificationsAdaptor(service);
+    new NotificationsAdaptor(service);
 	if (!connection.registerObject("/org/freedesktop/Notifications",
 				       service)) {
 		throw std::runtime_error{"Can't register DBus service object!"};
@@ -118,21 +118,25 @@ QDBusConnection connect_to_session_bus(gsl::not_null<IQDBusService *> service)
 
 int main(int argc, char *argv[])
 {
+    // qputenv("QT_QPA_PLATFORM", QByteArray("wayland"));
+    qputenv("QT_WAYLAND_SHELL_INTEGRATION", QByteArray("layer-shell"));
+
 	QApplication app(argc, argv);
 	app.setQuitOnLastWindowClosed(false);
 
 	auto dbus_service = get_service();
 	connect_to_session_bus(dbus_service);
 
-	qmlRegisterSingletonType<IQThemes>("IQNotifier", 1, 0, "IQThemes",
-					   iqthemes_provider);
-	qmlRegisterType<IQExpirationController>("IQNotifier", 1, 0,
-						"IQExpirationController");
-	qmlRegisterType<IQTrayIcon>("IQNotifier", 1, 0, "IQTrayIcon");
-	qmlRegisterSingletonType<IQNotifications>(
-	    "IQNotifier", 1, 0, "IQNotifications", iqnotifications_provider);
-	qmlRegisterSingletonType<IQHistory>("IQNotifier", 1, 0, "IQHistory",
-					    iqhistory_provider);
+	qmlRegisterSingletonType<BzardThemes>("bzard", 1, 0, "BzardThemes",
+                       bzardthemes_provider);
+	qmlRegisterType<BzardExpirationController>("bzard", 1, 0,
+						"BzardExpirationController");
+	qmlRegisterType<BzardTrayIcon>("bzard", 1, 0, "BzardTrayIcon");
+	qmlRegisterSingletonType<BzardNotifications>(
+        "bzard", 1, 0, "BzardNotifications", bzardnotifications_provider);
+	qmlRegisterSingletonType<BzardHistory>("bzard", 1, 0, "BzardHistory",
+                        bzardhistory_provider);
+
 
 	QQmlApplicationEngine engine;
 	engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

@@ -15,20 +15,26 @@
  * along with bzard.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+import QtQuick
 
-#include <memory>
+Rectangle {
+    id: root
+    width: initialWidth
 
-#include <iqfullscreendetector.h>
+    property bool runnig: false
+    property int expireTimeout: 0
+    property int initialWidth: parent.width
 
-class X11FullscreenDetector final : public IQFullscreenDetector
-{
-      public:
-	X11FullscreenDetector();
+    function restart() {
+        anim.restart();
+    }
 
-	bool fullscreenWindowsOnCurrentDesktop() const final;
-	bool fullscreenWindows() const final;
+    visible: runnig
 
-      private:
-	std::unique_ptr<IQFullscreenDetector> detectorPrivate;
-};
+    PropertyAnimation {
+        id: anim
+        target: root; property: "width"; from: initialWidth; to: 0
+        duration: expireTimeout < 0 ? 0 : expireTimeout
+        running: root.runnig && expireTimeout > 0
+    }
+}

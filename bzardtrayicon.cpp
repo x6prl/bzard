@@ -15,21 +15,32 @@
  * along with bzard.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "x11fullscreendetector.h"
+#include "bzardtrayicon.h"
 
-#include "x11fullscreendetectorprivate.h"
-
-X11FullscreenDetector::X11FullscreenDetector()
-    : detectorPrivate{std::make_unique<X11FullscreenDetectorPrivate>()}
+namespace
 {
+QIcon urlToIcon(const QUrl &url)
+{
+	auto iconFileName = url.toString();
+	iconFileName.replace("file:///", "");
+	return QIcon{iconFileName};
+}
+} // anonymouse namespace
+
+BzardTrayIcon::BzardTrayIcon(QObject *parent) : QSystemTrayIcon(parent)
+{
+	connect(this, &BzardTrayIcon::iconUrlChanged,
+		[this] { setIcon(urlToIcon(iconUrl_)); });
+	connect(this, &BzardTrayIcon::activated, [this](ActivationReason reason) {
+		if (reason == Trigger)
+			emit leftClick();
+	});
 }
 
-bool X11FullscreenDetector::fullscreenWindowsOnCurrentDesktop() const
-{
-	return detectorPrivate->fullscreenWindowsOnCurrentDesktop();
-}
+QUrl BzardTrayIcon::iconUrl() const { return iconUrl_; }
 
-bool X11FullscreenDetector::fullscreenWindows() const
+void BzardTrayIcon::setIconUrl(const QUrl &iconUrl)
 {
-	return detectorPrivate->fullscreenWindows();
+	iconUrl_ = iconUrl;
+	emit iconUrlChanged();
 }
