@@ -15,21 +15,32 @@
  * along with IQ Notifier.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "x11fullscreendetector.h"
+#include "iqtrayicon.h"
 
-#include "x11fullscreendetectorprivate.h"
-
-X11FullscreenDetector::X11FullscreenDetector()
-    : detectorPrivate{std::make_unique<X11FullscreenDetectorPrivate>()}
+namespace
 {
+QIcon urlToIcon(const QUrl &url)
+{
+	auto iconFileName = url.toString();
+	iconFileName.replace("file:///", "");
+	return QIcon{iconFileName};
+}
+} // anonymouse namespace
+
+IQTrayIcon::IQTrayIcon(QObject *parent) : QSystemTrayIcon(parent)
+{
+	connect(this, &IQTrayIcon::iconUrlChanged,
+		[this] { setIcon(urlToIcon(iconUrl_)); });
+	connect(this, &IQTrayIcon::activated, [this](ActivationReason reason) {
+		if (reason == Trigger)
+			emit leftClick();
+	});
 }
 
-bool X11FullscreenDetector::fullscreenWindowsOnCurrentDesktop() const
-{
-	return detectorPrivate->fullscreenWindowsOnCurrentDesktop();
-}
+QUrl IQTrayIcon::iconUrl() const { return iconUrl_; }
 
-bool X11FullscreenDetector::fullscreenWindows() const
+void IQTrayIcon::setIconUrl(const QUrl &iconUrl)
 {
-	return detectorPrivate->fullscreenWindows();
+	iconUrl_ = iconUrl;
+	emit iconUrlChanged();
 }

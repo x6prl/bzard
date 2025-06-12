@@ -1,32 +1,30 @@
 /*
- *     This file is part of bzard.
+ *     This file is part of IQ Notifier.
  *
- * bzard is free software: you can redistribute it and/or modify
+ * IQ Notifier is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
  *
- * bzard is distributed in the hope that it will be useful,
+ * IQ Notifier is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with bzard.  If not, see <http://www.gnu.org/licenses/>.
+ * along with IQ Notifier.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick.Window
-import QtQuick
-import bzard 1.0
+import QtQuick.Window 2.1
+import QtQuick 2.5
+import IQNotifier 1.0
 
 QtObject {
     id: root
     property var notificationsMap: {'-1': Object} // that's ok
     property var cons: Connections {
-        target: BzardNotifications
-        function onCreateNotification (notification_id, size, pos,expire_timeout,                                             appName,
-                                       body, title,
-                                       iconUrl, actions) {
+        target: IQNotifications
+        onCreateNotification: {
             if (notificationsMap[notification_id]) {
 //                notificationsMap[notification_id].body = body;
 //                notificationsMap[notification_id].title = title;
@@ -44,15 +42,11 @@ QtObject {
             n.show();
             root.addNotification(notification_id, n);
         }
-        function onDropNotification (notification_id) {
+        onDropNotification:
             root.dropNotification(notification_id);
-        }
-        function onDropAllVisible () {
-            root.dropAllVisible()
-        }
-        function onMoveNotification (notification_id, pos) {
+        onDropAllVisible: root.dropAllVisible()
+        onMoveNotification:
             root.moveNotification(notification_id, pos);
-        }
     }
 
     Component.onCompleted: {
@@ -76,7 +70,7 @@ QtObject {
                                 appName,
                                 body,title,
                                 iconUrl, actions) {
-        var component = Qt.createComponent("BzardNotification.qml");
+        var component = Qt.createComponent("IQNotification.qml");
         if (component.status !== Component.Ready) {
             if(component.status === Component.Error)
                 console.debug("Error: "+ component.errorString());
@@ -115,7 +109,7 @@ QtObject {
     function dropAllVisible() {
         Object.keys(notificationsMap).forEach(function(key) {
             if( key != '-1') {
-//                BzardNotifications.onDropNotification(key);
+//                IQNotifications.onDropNotification(key);
                 dropNotification(key);
             }
 
@@ -129,7 +123,7 @@ QtObject {
     }
 
     function initExtraNotifications () {
-        var component = Qt.createComponent("BzardExtraNotifications.qml");
+        var component = Qt.createComponent("IQExtraNotifications.qml");
         if (component.status !== Component.Ready) {
             if(component.status === Component.Error)
                 console.debug("Error: "+ component.errorString());
@@ -143,11 +137,11 @@ QtObject {
 
     property var trayIconLoader__: Loader{
         id: trayIconLoader
-        sourceComponent: BzardHistory.isEnabled ? tray : undefined
+        sourceComponent: IQHistory.isEnabled ? tray : undefined
     }
 
     function createHistoryWindow(cb) {
-            var component = Qt.createComponent("BzardHistoryWindow.qml");
+            var component = Qt.createComponent("IQHistoryWindow.qml");
             if (component.status !== Component.Ready) {
                 if(component.status === Component.Error)
                     console.debug("Error: "+ component.errorString());
@@ -158,9 +152,9 @@ QtObject {
 
     property var tray__: Component{
         id: tray
-        BzardTrayIcon {
-            property BzardHistoryWindow history
-            iconUrl: BzardThemes.trayIconTheme.icon
+        IQTrayIcon {
+            property IQHistoryWindow history
+            iconUrl: IQThemes.trayIconTheme.icon
             visible: iconUrl != undefined
             onLeftClick: {
                 if (history == null || history == undefined) {

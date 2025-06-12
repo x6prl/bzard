@@ -15,21 +15,26 @@
  * along with IQ Notifier.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "x11fullscreendetector.h"
+import QtQuick 2.5
 
-#include "x11fullscreendetectorprivate.h"
+Rectangle {
+    id: root
+    width: initialWidth
 
-X11FullscreenDetector::X11FullscreenDetector()
-    : detectorPrivate{std::make_unique<X11FullscreenDetectorPrivate>()}
-{
-}
+    property bool runnig: false
+    property int expireTimeout: 0
+    property int initialWidth: parent.width
 
-bool X11FullscreenDetector::fullscreenWindowsOnCurrentDesktop() const
-{
-	return detectorPrivate->fullscreenWindowsOnCurrentDesktop();
-}
+    function restart() {
+        anim.restart();
+    }
 
-bool X11FullscreenDetector::fullscreenWindows() const
-{
-	return detectorPrivate->fullscreenWindows();
+    visible: runnig
+
+    PropertyAnimation {
+        id: anim
+        target: root; property: "width"; from: initialWidth; to: 0
+        duration: expireTimeout < 0 ? 0 : expireTimeout
+        running: root.runnig && expireTimeout > 0
+    }
 }

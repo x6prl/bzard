@@ -15,21 +15,4 @@
  * along with IQ Notifier.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "x11fullscreendetector.h"
-
-#include "x11fullscreendetectorprivate.h"
-
-X11FullscreenDetector::X11FullscreenDetector()
-    : detectorPrivate{std::make_unique<X11FullscreenDetectorPrivate>()}
-{
-}
-
-bool X11FullscreenDetector::fullscreenWindowsOnCurrentDesktop() const
-{
-	return detectorPrivate->fullscreenWindowsOnCurrentDesktop();
-}
-
-bool X11FullscreenDetector::fullscreenWindows() const
-{
-	return detectorPrivate->fullscreenWindows();
-}
+#include "iqnotificationreceiver.h"

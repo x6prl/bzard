@@ -15,21 +15,42 @@
  * along with IQ Notifier.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "x11fullscreendetector.h"
+#include "iqexpirationcontroller.h"
 
-#include "x11fullscreendetectorprivate.h"
-
-X11FullscreenDetector::X11FullscreenDetector()
-    : detectorPrivate{std::make_unique<X11FullscreenDetectorPrivate>()}
+bool IQExpirationController::expiration() const
 {
+	return t ? t->isActive() : false;
 }
 
-bool X11FullscreenDetector::fullscreenWindowsOnCurrentDesktop() const
+void IQExpirationController::setExpiration(bool expiration)
 {
-	return detectorPrivate->fullscreenWindowsOnCurrentDesktop();
+	if (t) {
+		if (expiration) {
+			t->start();
+		} else {
+			t->stop();
+		}
+	}
+
+	emit expirationChanged();
 }
 
-bool X11FullscreenDetector::fullscreenWindows() const
+int IQExpirationController::timeout() const { return t ? t->interval() : 0; }
+
+void IQExpirationController::setTimeout(int timeout)
 {
-	return detectorPrivate->fullscreenWindows();
+	if (timeout) {
+		if (!t) {
+			t = std::make_unique<QTimer>();
+			t->setSingleShot(true);
+			connect(t.get(), &QTimer::timeout,
+				[this] { emit expired(); });
+		}
+
+		t->setInterval(timeout);
+	} else {
+		t.reset(nullptr);
+	}
+
+	emit timeoutChanged();
 }

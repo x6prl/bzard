@@ -1,5 +1,5 @@
-# bzard
-bzard is fancy and flexible notification daemon.
+# IQ Notifier
+IQ Notifier is fancy and flexible notification daemon.
 
 ## Screenshots
 ![0](/screenshots/0.png?raw=true)
@@ -11,21 +11,21 @@ bzard is fancy and flexible notification daemon.
 
 ## Features
 ### History
-bzard will store notifications until restart.
+IQ Notifier will store notifications until restart.
 
 ![h_0](/screenshots/h_0.png?raw=true)
 
 ### TitleToIcon
-If icon not presented, bzard will compare title and app name; if its equals, bzard will try to find and set app icon.
+If icon not presented, IQ Notifier will compare title and app name; if its equals, IQ Notifier will try to find and set app icon.
 
 ### URL icons support
 Icon can be simple link to image.
 
 ### ReplaceMinusToDash
-bzard will replace all occurrences of `-` to `—`.
+IQ Notifier will replace all occurrences of `-` to `—`.
 
 ### BodyToTitleWhenTitleIsAppName
-If icon not presented, bzard will compare title and app name; if its equals, bzard will move all text from body to title.
+If icon not presented, IQ Notifier will compare title and app name; if its equals, IQ Notifier will move all text from body to title.
 
 ### All fields are optional
 Unused parts of notifications will not shown. 
@@ -40,7 +40,7 @@ Buttons row at the bottom. :)
 Pony theme in default package: just change `theme_name` to `pony` in config file!
 
 ### Flexidble
-You can configure most parts of bzard. Look at config file.
+You can configure most parts of IQ Notifier. Look at config file.
 
 # Compositing
 To make opacity [of popups] works you need compositing. Try `compton -CG `, that should work.
@@ -77,12 +77,12 @@ Tested on ubuntu 16.04, GCC 5.4.0 and Clang 3.8.0.
 # Config
 Config path: `$XDG_CONFIG_HOME/iq-notifier/config` (`~/.config/iq-notifier/config`)
 
-All 'modules' of bzard should be enabled in config file explicitly. To copy example config execute from repo root:
+All 'modules' of IQ Notifier should be enabled in config file explicitly. To copy example config execute from repo root:
 ```bash
 cp config.example ~/.config/iq-notifier/config
 ```
 
-Or, if you installed bzard from package jut run it. Config will be copied to your home dir automatically at first start.
+Or, if you installed IQ Notifier from package jut run it. Config will be copied to your home dir automatically at first start.
 
 
 # Themes
@@ -117,21 +117,3 @@ Look at COPYING file.
 - body-markup
 - icon-static
 - persistence
-
-Sure! Here's your **bzard color palette** in English, using Markdown with HTML blocks for inline color swatches:
-
----
-
-### 🎨 **bzard Color Palette (Nord-inspired, minimal + utility)**
-
-| Purpose              | Color Name      | HEX       | Preview   |
-|----------------------|------------------|-----------|-----------|
-| **Background/Base**  | Dark Gray        | `#202124` | <span style="display:inline-block;width:24px;height:24px;background:#202124;border:1px solid #444;"></span> |
-| **Accent Primary**   | Soft Blue        | `#5e81ac` | <span style="display:inline-block;width:24px;height:24px;background:#5e81ac;border:1px solid #444;"></span> |
-| **Accent Secondary** | Polar Blue       | `#88c0d0` | <span style="display:inline-block;width:24px;height:24px;background:#88c0d0;border:1px solid #444;"></span> |
-| **Neutral Tone**     | Light Gray       | `#d8dee9` | <span style="display:inline-block;width:24px;height:24px;background:#d8dee9;border:1px solid #444;"></span> |
-| **Highlight/Focus**  | White            | `#ffffff` | <span style="display:inline-block;width:24px;height:24px;background:#ffffff;border:1px solid #ccc;"></span> |
-
-> Use `#5e81ac → #88c0d0` for smooth action gradients.  
-> Reserve white for focus points, pings, or "done" signals.
-
