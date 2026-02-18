@@ -15,17 +15,19 @@
  * along with bzard.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "x11fullscreendetector.h"
+#include "bzard_notification.h"
 
-#include "x11fullscreendetectorprivate.h"
-
-X11FullscreenDetector::X11FullscreenDetector()
-	  : detectorPrivate{std::make_unique<X11FullscreenDetectorPrivate>()} {}
-
-bool X11FullscreenDetector::fullscreenWindowsOnCurrentDesktop() const {
-	return detectorPrivate->fullscreenWindowsOnCurrentDesktop();
+BzardNotification::operator QString() const {
+	QString result;
+	result += "#" + QString::number(id);
+	if (replacesId)
+		result += "→" + QString::number(replacesId);
+	result += '|' + application;
+	result += '|' + body;
+	result += '|' + title;
+	result += '|' + iconUrl;
+	result += "|t" + QString::number(expireTimeout);
+	return result;
 }
 
-bool X11FullscreenDetector::fullscreenWindows() const {
-	return detectorPrivate->fullscreenWindows();
-}
+BzardNotificationModifier::~BzardNotificationModifier() {}

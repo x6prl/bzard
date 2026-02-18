@@ -15,17 +15,12 @@
  * along with bzard.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "x11fullscreendetector.h"
+#pragma once
 
-#include "x11fullscreendetectorprivate.h"
+struct BzardFullscreenDetector {
+	BzardFullscreenDetector() = default;
+	virtual ~BzardFullscreenDetector() = default;
 
-X11FullscreenDetector::X11FullscreenDetector()
-	  : detectorPrivate{std::make_unique<X11FullscreenDetectorPrivate>()} {}
-
-bool X11FullscreenDetector::fullscreenWindowsOnCurrentDesktop() const {
-	return detectorPrivate->fullscreenWindowsOnCurrentDesktop();
-}
-
-bool X11FullscreenDetector::fullscreenWindows() const {
-	return detectorPrivate->fullscreenWindows();
-}
+	virtual bool fullscreenWindowsOnCurrentDesktop() const = 0;
+	virtual bool fullscreenWindows() const = 0;
+};

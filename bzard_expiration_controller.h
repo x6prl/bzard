@@ -15,17 +15,35 @@
  * along with bzard.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "x11fullscreendetector.h"
+#pragma once
 
-#include "x11fullscreendetectorprivate.h"
+#include <memory>
 
-X11FullscreenDetector::X11FullscreenDetector()
-	  : detectorPrivate{std::make_unique<X11FullscreenDetectorPrivate>()} {}
+#include <QObject>
+#include <QTimer>
 
-bool X11FullscreenDetector::fullscreenWindowsOnCurrentDesktop() const {
-	return detectorPrivate->fullscreenWindowsOnCurrentDesktop();
-}
+class BzardExpirationController : public QObject {
+	Q_OBJECT
 
-bool X11FullscreenDetector::fullscreenWindows() const {
-	return detectorPrivate->fullscreenWindows();
-}
+	Q_PROPERTY(bool expiration READ expiration WRITE setExpiration NOTIFY
+	                 expirationChanged)
+	Q_PROPERTY(int timeout READ timeout WRITE setTimeout NOTIFY timeoutChanged)
+  public:
+	using QObject::QObject;
+
+	bool expiration() const;
+	void setExpiration(bool expiration);
+
+	int timeout() const;
+	void setTimeout(int timeout);
+
+  signals:
+	void expired();
+	void expirationChanged();
+	void timeoutChanged();
+
+  public slots:
+
+  private:
+	std::unique_ptr<QTimer> timer;
+};

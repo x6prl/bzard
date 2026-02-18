@@ -1,4 +1,4 @@
-; IQ Notifier config
+; bzard config
 ;
 ; 'enabled' is false by default everywhere
 
@@ -9,6 +9,8 @@ theme_name = default
 ; you can disable floating notifications
 enabled = true
 
+; notification width/height are controlled in the active theme file
+
 close_all_by_right_click = true
 close_visible_by_middle_click = true
 close_by_left_click = false
@@ -18,17 +20,11 @@ spacing = 5
 ; margins between screen borders and notification area
 global_margins = 0,20,20,0 
 
-; you should set both width and height to see changes
-width = 400
-height = 132
-
-; you should set both width and height to see changes
-extra_window_width = 400
-extra_window_height = 32
+; extra notifications window width/height are controlled in the active theme file
 
 ;;;; next X11 only
 
-; when set, IQ Notifier will try to detect fullscreen windows on current desktop
+; when set, bzard will try to detect fullscreen windows on current desktop
 ; and will not show popups in this case
 ; disabled by default
 dont_show_when_fullscreen_current_desktop = false
@@ -61,4 +57,3 @@ enabled = true
 enabled = true
 title = true
 body = false
-

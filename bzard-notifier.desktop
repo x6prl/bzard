@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.1
+Name=bzard
+GenericName=Notification daemon
+Comment=Fancy and flexible notification daemon
+Exec=bzard
+Terminal=false
+Implements=org.freedesktop.Notifications
