@@ -30,6 +30,7 @@ find_package(PkgConfig REQUIRED)
 # find_package(QT5XDG)
 
 pkg_check_modules(LibUdev REQUIRED libudev)
+pkg_check_modules(PipeWire REQUIRED libpipewire-0.3)
 
 aux_source_directory(. SRC_LIST)
 file(GLOB HEADER_LIST "*.h")
@@ -117,7 +118,7 @@ set(CPACK_PACKAGE_EXECUTABLES "${PROJECT_NAME};bzard")
 set(CPACK_PACKAGE_FILE_NAME ${PROJECT_NAME}-${VERSION}-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE})
 
 #6.5
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5network5 (>=5.5), libqt5dbus5 (>=5.5), libqt5gui5 (>=5.5), libqt5core5a (>=5.5), libqt5qml5 (>=5.5), 
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5network5 (>=5.5), libqt5dbus5 (>=5.5), libqt5gui5 (>=5.5), libqt5core5a (>=5.5), libqt5qml5 (>=5.5),
 libqt6quick6 (>=6.5),
 libqt6xdg4 (>=4.1)")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Viktor Filinkov <x6prlie@gmail.com>")
