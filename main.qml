@@ -84,9 +84,9 @@ QtObject {
         }
         var options = {
             "notification_id": notification_id,
-            "width": size.width,
-            "height": size.height,
-            "x": pos.x, "y": pos.y,
+            "popupWidth": size.width,
+            "popupHeight": size.height,
+            "popupX": pos.x, "popupY": pos.y,
             "expireTimeout": expire_timeout,
             "appName": appName,
             "body": body,
@@ -176,4 +176,3 @@ QtObject {
         }
     }
 }
-

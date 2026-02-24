@@ -31,6 +31,24 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(LibUdev REQUIRED libudev)
 pkg_check_modules(PipeWire REQUIRED libpipewire-0.3)
+find_library(LAYERSHELLQT_INTERFACE_LIB
+    NAMES
+        LayerShellQtInterface
+        LayerShellQtInterface.so.6
+        LayerShellQtInterface.so.5
+)
+if (NOT LAYERSHELLQT_INTERFACE_LIB)
+    find_file(LAYERSHELLQT_INTERFACE_LIB
+        NAMES
+            libLayerShellQtInterface.so
+            libLayerShellQtInterface.so.6
+            libLayerShellQtInterface.so.5
+        PATH_SUFFIXES
+            lib
+            lib64
+            lib/x86_64-linux-gnu
+    )
+endif()
 
 aux_source_directory(. SRC_LIST)
 file(GLOB HEADER_LIST "*.h")
@@ -64,6 +82,11 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE Qt6Xdg
     ${LibUdev_LIBRARIES}
 )
+
+if (LAYERSHELLQT_INTERFACE_LIB)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${LAYERSHELLQT_INTERFACE_LIB})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE BZARD_HAS_LAYERSHELLQT_INTERFACE=1)
+endif()
 
 # Include directories for headers
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -125,4 +148,3 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Viktor Filinkov <x6prlie@gmail.com>")
 # set(CPACK_DEBIAN_PACKAGE_SECTION "x11")
 
 include(CPack)
-

@@ -17,6 +17,8 @@
 
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QRect>
+#include <QWindow>
 #include <QtDBus/QDBusConnection>
 #include <QtQml>
 
@@ -31,6 +33,10 @@
 #include "bzard_top_down.h"
 #include "bzard_tray_icon.h"
 
+#ifdef BZARD_HAS_LAYERSHELLQT_INTERFACE
+#include "layershellqt_window_shim.h"
+#endif
+
 #ifdef BZARD_X11
 #include "X11-plugin/x11fullscreendetector.h"
 #endif
@@ -42,6 +48,55 @@ static QObject *bzardnotifications_provider(QQmlEngine *engine,
                                             QJSEngine *scriptEngine);
 static QObject *bzardthemes_provider(QQmlEngine *engine,
                                      QJSEngine *scriptEngine);
+
+class WaylandLayerShellHelper final : public QObject {
+	Q_OBJECT
+
+  public:
+	Q_INVOKABLE void configure(QObject *windowObject, const QString &scope,
+	                           int x, int y, int width, int height) {
+#ifdef BZARD_HAS_LAYERSHELLQT_INTERFACE
+		auto *window = qobject_cast<QWindow *>(windowObject);
+		if (!window)
+			return;
+		if (width <= 0 || height <= 0)
+			return;
+
+		auto *layerShellWindow = LayerShellQt::Window::get(window);
+		if (!layerShellWindow) {
+			// Ensure native resources exist before asking LayerShellQt for
+			// wrapper.
+			window->create();
+			layerShellWindow = LayerShellQt::Window::get(window);
+		}
+		if (!layerShellWindow)
+			return;
+
+		const auto screenGeometry =
+			  window->screen() ? window->screen()->geometry() : QRect{};
+		const auto topMargin = std::max(0, y - screenGeometry.y());
+		const auto rightMargin =
+			  std::max(0, screenGeometry.right() - (x + width - 1));
+
+		layerShellWindow->setScope(scope);
+		layerShellWindow->setLayer(LayerShellQt::Window::LayerTop);
+		layerShellWindow->setAnchors(LayerShellQt::Window::AnchorTop |
+		                             LayerShellQt::Window::AnchorRight);
+		layerShellWindow->setMargins(QMargins{0, topMargin, rightMargin, 0});
+		layerShellWindow->setDesiredSize(QSize{width, height});
+		layerShellWindow->setExclusiveZone(-1);
+		layerShellWindow->setKeyboardInteractivity(
+			  LayerShellQt::Window::KeyboardInteractivityNone);
+#else
+		Q_UNUSED(windowObject);
+		Q_UNUSED(scope);
+		Q_UNUSED(x);
+		Q_UNUSED(y);
+		Q_UNUSED(width);
+		Q_UNUSED(height);
+#endif
+	}
+};
 
 BzardDBusService *get_service() {
 	using namespace BzardNotificationModifiers;
@@ -109,8 +164,11 @@ QDBusConnection connect_to_session_bus(BzardDBusService *service) {
 }
 
 int main(int argc, char *argv[]) {
-	if (qgetenv("XDG_SESSION_TYPE") == QByteArray("wayland"))
-		qputenv("QT_WAYLAND_SHELL_INTEGRATION", QByteArray("layer-shell"));
+#ifdef BZARD_HAS_LAYERSHELLQT_INTERFACE
+	if (qgetenv("XDG_SESSION_TYPE") == QByteArray("wayland")) {
+		LayerShellQt::Shell::useLayerShell();
+	}
+#endif
 
 	QApplication app(argc, argv);
 	app.setQuitOnLastWindowClosed(false);
@@ -127,6 +185,9 @@ int main(int argc, char *argv[]) {
 		  "bzard", 1, 0, "BzardNotifications", bzardnotifications_provider);
 	qmlRegisterSingletonType<BzardHistory>("bzard", 1, 0, "BzardHistory",
 	                                       bzardhistory_provider);
+	static WaylandLayerShellHelper waylandLayerShellHelper;
+	qmlRegisterSingletonInstance("bzard", 1, 0, "BzardWaylandLayerShell",
+	                             &waylandLayerShellHelper);
 
 	QQmlApplicationEngine engine;
 	engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
@@ -135,3 +196,5 @@ int main(int argc, char *argv[]) {
 
 	return app.exec();
 }
+
+#include "main.moc"
