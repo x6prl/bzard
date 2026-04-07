@@ -125,6 +125,7 @@ void BzardNotifications::onDropNotification(BzardNotification::IdT id) {
 	emit dropNotification(static_cast<int>(id));
 	emit notificationDroppedSignal(id,
 	                               BzardNotification::CR_NOTIFICATION_CLOSED);
+	checkExtraNotifications();
 }
 
 void BzardNotifications::onCloseButtonPressed(int id) {
@@ -141,12 +142,14 @@ void BzardNotifications::onActionButtonPressed(int id, const QString &action) {
 	emit notificationDroppedSignal(
 		  static_cast<BzardNotification::IdT>(id),
 		  BzardNotification::CR_NOTIFICATION_DISMISSED);
+	checkExtraNotifications();
 }
 
 void BzardNotifications::onExpired(int id) {
 	emit dropNotification(id);
 	emit notificationDroppedSignal(static_cast<BzardNotification::IdT>(id),
 	                               BzardNotification::CR_NOTIFICATION_EXPIRED);
+	checkExtraNotifications();
 }
 
 void BzardNotifications::onDropAll() {

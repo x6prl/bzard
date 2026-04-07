@@ -29,9 +29,7 @@ static bool copyRecursively(const QString &SRC_FILE_PATH,
                             const QString &TGT_FILE_PATH) {
 	QFileInfo srcFileInfo(SRC_FILE_PATH);
 	if (srcFileInfo.isDir()) {
-		QDir targetDir(TGT_FILE_PATH);
-		targetDir.cdUp();
-		if (!targetDir.mkdir(QFileInfo(TGT_FILE_PATH).fileName()))
+		if (!QDir{}.mkpath(TGT_FILE_PATH))
 			return false;
 		QDir sourceDir(SRC_FILE_PATH);
 		QStringList fileNames = sourceDir.entryList(
@@ -42,10 +40,12 @@ static bool copyRecursively(const QString &SRC_FILE_PATH,
 				  SRC_FILE_PATH + QLatin1Char('/') + FILE_NAME;
 			const QString NEW_TGT_FILE_PATH =
 				  TGT_FILE_PATH + QLatin1Char('/') + FILE_NAME;
-			if (!copyRecursively(NEW_SRC_FILE_PATH, TGT_FILE_PATH))
+			if (!copyRecursively(NEW_SRC_FILE_PATH, NEW_TGT_FILE_PATH))
 				return false;
 		}
 	} else {
+		if (QFile::exists(TGT_FILE_PATH))
+			return true;
 		if (!QFile::copy(SRC_FILE_PATH, TGT_FILE_PATH)) // NOLINT
 			return false;
 	}
@@ -98,10 +98,17 @@ QString BzardConfig::getConfigFileName() const {
 	} else {
 		QDir dir;
 		dir.mkpath(configDir());
-		if (config.contains("/themes/default/theme"))
-			copyThemesFromShare(QString{config}.replace("/default/theme", ""));
-		else
-			copyConfigFileFromExample(config);
+		bool copied = false;
+		if (config.contains("/themes/")) {
+			auto themesDir = configDir() + "/themes";
+			copied = copyThemesFromShare(themesDir);
+		} else {
+			copied = copyConfigFileFromExample(config);
+		}
+		if (!copied) {
+			throw std::runtime_error{"Failed to create config file: " +
+			                         config.toStdString()};
+		}
 	}
 	return config;
 }

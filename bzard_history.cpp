@@ -83,7 +83,13 @@ QVariant BzardHistoryModel::data(const QModelIndex &index, int role) const {
 	if (!index.isValid())
 		return QVariant();
 
-	auto &index_ = bzardHistory->historyList[index.row()];
+	const auto row = index.row();
+	if (row < 0 ||
+	    static_cast<size_t>(row) >= bzardHistory->historyList.size()) {
+		return {};
+	}
+
+	auto &index_ = bzardHistory->historyList[static_cast<size_t>(row)];
 	switch (role) {
 	case HR_ID_ROLE:
 		return index_->id_();

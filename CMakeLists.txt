@@ -140,10 +140,11 @@ set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
 set(CPACK_PACKAGE_EXECUTABLES "${PROJECT_NAME};bzard")
 set(CPACK_PACKAGE_FILE_NAME ${PROJECT_NAME}-${VERSION}-${CPACK_DEBIAN_PACKAGE_ARCHITECTURE})
 
-#6.5
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5network5 (>=5.5), libqt5dbus5 (>=5.5), libqt5gui5 (>=5.5), libqt5core5a (>=5.5), libqt5qml5 (>=5.5),
-libqt6quick6 (>=6.5),
-libqt6xdg4 (>=4.1)")
+# Derive ELF runtime dependencies from the built binary and add the QML module
+# packages required by the bundled imports.
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS TRUE)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS
+    "qml6-module-qtquick, qml6-module-qtquick-window, qml6-module-qtquick-layouts")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Viktor Filinkov <x6prlie@gmail.com>")
 # set(CPACK_DEBIAN_PACKAGE_SECTION "x11")
 
