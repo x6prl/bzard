@@ -21,7 +21,7 @@ import bzard 1.0
 
 QtObject {
     id: root
-    property var notificationsMap: {'-1': Object} // that's ok
+    property var notificationsMap: ({})
     property var cons: Connections {
         target: BzardNotifications
         function onCreateNotification (notification_id, size, pos,expire_timeout,                                             appName,
@@ -103,22 +103,24 @@ QtObject {
 
     function addNotification(notification_id, notification) {
         notificationsMap[notification_id] = notification;
+        notification.destroyed.connect(function() {
+            if (notificationsMap[notification_id] === notification)
+                delete notificationsMap[notification_id];
+        });
     }
 
     function dropNotification(notification_id) {
-        if (notificationsMap[notification_id] !== undefined) {
-            notificationsMap[notification_id].drop();
-            notificationsMap[notification_id] = undefined;
+        var notification = notificationsMap[notification_id];
+        if (notification !== undefined) {
+            delete notificationsMap[notification_id];
+            notification.drop();
         }
     }
 
     function dropAllVisible() {
         Object.keys(notificationsMap).forEach(function(key) {
-            if( key != '-1') {
 //                BzardNotifications.onDropNotification(key);
-                dropNotification(key);
-            }
-
+            dropNotification(key);
         });
     }
 

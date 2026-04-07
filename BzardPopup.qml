@@ -110,7 +110,10 @@ Window {
         id: destroyTimer
         running: false
         repeat: false
-        onTriggered: close()
+        onTriggered: {
+            root.close()
+            root.destroy()
+        }
     }
 
     ParallelAnimation {
